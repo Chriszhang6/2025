@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2025</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #030307;
+            --bg-alt: #0c0f16;
+            --fg: #f5f5f5;
+            --muted: #8d92a1;
+            --line: rgba(255, 255, 255, 0.08);
+            --progress: #e7f8ff;
+            --accent: #a9ff7f;
+            --card-bg: rgba(6, 10, 18, 0.78);
+            --card-border: rgba(255, 255, 255, 0.06);
+            --radius-lg: 20px;
+            --radius-sm: 14px;
+            --spine-gap: clamp(72px, 8vw, 130px);
+        }
+
+        body {
+            font-family: "Space Grotesk", "Manrope", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background: radial-gradient(circle at 20% 20%, #101629 0%, #05040a 45%, #020203 100%);
+            color: var(--fg);
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(3, 4, 9, 0.85);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            padding: 28px clamp(24px, 4vw, 60px);
+            z-index: 100;
+        }
+
+        .header h1 {
+            font-size: clamp(1.5em, 3vw, 2.6em);
+            font-weight: 500;
+            letter-spacing: 0.2em;
+            color: var(--fg);
+        }
+
+        .timeline-container {
+            margin-top: 120px;
+            padding: 0 clamp(24px, 6vw, 140px) 140px;
+            position: relative;
+            max-width: 1500px;
+            margin-left: auto;
+            margin-right: auto;
+            isolation: isolate;
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--line);
+            transform: translateX(-50%);
+            border-radius: 999px;
+        }
+
+        .timeline-progress {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            width: 2px;
+            background: var(--progress);
+            height: 0;
+            z-index: 10;
+            transform: translateX(-50%);
+        }
+
+        .month-divider {
+            position: relative;
+            text-align: center;
+            margin: 90px 0 60px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+
+        .month-divider.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .month-divider-line {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: var(--line);
+        }
+
+        .month-title {
+            position: relative;
+            display: inline-block;
+            padding: 8px 32px;
+            background: rgba(6, 10, 18, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 999px;
+            font-size: clamp(1.3em, 2.4vw, 2em);
+            font-weight: 400;
+            color: var(--fg);
+            letter-spacing: 0.2em;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: clamp(70px, 10vw, 140px);
+            opacity: 0;
+            transition: all 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+            will-change: transform, opacity;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) var(--spine-gap) minmax(0, 1fr);
+            align-items: flex-start;
+        }
+
+        .timeline-item.left {
+            transform: translate3d(-35px, 40px, 0);
+        }
+
+        .timeline-item.right {
+            transform: translate3d(35px, 40px, 0);
+        }
+
+        .timeline-item.visible {
+            opacity: 1;
+            transform: translateX(0) translateY(0);
+        }
+
+        .timeline-item.left .item-content {
+            grid-column: 1 / 2;
+            justify-self: end;
+            text-align: right;
+        }
+
+        .timeline-item.right .item-content {
+            grid-column: 3 / 4;
+            justify-self: start;
+            text-align: left;
+        }
+
+        .item-content {
+            width: min(420px, max(260px, calc(50vw - var(--spine-gap))));
+            max-width: 460px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            padding: clamp(18px, 3vw, 28px);
+            box-shadow: 0 25px 60px rgba(2, 2, 6, 0.45);
+            backdrop-filter: blur(18px);
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .timeline-marker {
+            position: relative;
+            justify-self: center;
+            align-self: center;
+            grid-column: 2 / 3;
+            width: 12px;
+            height: 12px;
+            background: var(--progress);
+            border-radius: 50%;
+            z-index: 20;
+            transition: all 0.4s ease;
+            box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.06);
+        }
+
+        .timeline-item.visible .timeline-marker {
+            transform: scale(1.15);
+            box-shadow: 0 0 35px rgba(169, 255, 127, 0.35);
+        }
+
+        .item-description {
+            font-size: 1.05em;
+            color: var(--fg);
+            line-height: 1.7;
+            font-weight: 500;
+            letter-spacing: 0.03em;
+        }
+
+        .item-photo {
+            position: relative;
+            overflow: hidden;
+            background: #000;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 25px 60px rgba(5, 5, 10, 0.6);
+            aspect-ratio: 4 / 3;
+            border-radius: var(--radius-sm);
+        }
+
+        .item-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            filter: grayscale(20%);
+            display: block;
+        }
+
+        .item-photo:hover,
+        .item-photo:active {
+            transform: scale(1.03);
+            box-shadow: 0 8px 30px rgba(255, 255, 255, 0.1);
+        }
+
+        .item-photo:hover img,
+        .item-photo:active img {
+            filter: grayscale(0%);
+            transform: scale(1.08);
+        }
+
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(1, 2, 6, 0.96);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .lightbox.active {
+            display: flex;
+        }
+
+        .lightbox-content {
+            max-width: 90%;
+            max-height: 90%;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .lightbox-content img {
+            max-width: 100%;
+            max-height: 80vh;
+            object-fit: contain;
+        }
+
+        .lightbox-caption {
+            position: static;
+            margin-top: 18px;
+            text-align: center;
+            color: #ffffff;
+            font-size: 1.1em;
+            padding: 0 10px;
+        }
+
+        .lightbox-close {
+            position: fixed;
+            top: 30px;
+            right: 40px;
+            color: var(--fg);
+            font-size: 2.2em;
+            cursor: pointer;
+            z-index: 1001;
+            transition: opacity 0.3s ease;
+            font-weight: 200;
+            background: none;
+            border: none;
+            line-height: 1;
+        }
+
+        .lightbox-close:hover {
+            opacity: 0.6;
+        }
+
+        .lightbox-close:focus-visible {
+            outline: 2px solid rgba(255, 255, 255, 0.7);
+            outline-offset: 4px;
+        }
+
+        .year-progress {
+            position: fixed;
+            top: 40px;
+            right: 40px;
+            color: var(--fg);
+            background: rgba(4, 6, 12, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 999px;
+            padding: 10px 22px;
+            font-size: 0.9em;
+            font-weight: 500;
+            letter-spacing: 0.25em;
+            z-index: 99;
+            backdrop-filter: blur(10px);
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.5em;
+                letter-spacing: 0.2em;
+            }
+
+            .timeline-container {
+                padding: 0 20px 80px;
+                margin-top: 80px;
+            }
+
+            .timeline-line,
+            .timeline-progress {
+                left: 24px;
+                transform: none;
+            }
+
+            .timeline-item {
+                display: block;
+                margin-bottom: 70px;
+                padding-left: 40px;
+            }
+
+            .timeline-item.left .item-content,
+            .timeline-item.right .item-content {
+                margin: 0;
+                width: 100%;
+                max-width: 100%;
+                justify-self: stretch;
+                text-align: left;
+            }
+
+            .timeline-marker {
+                position: absolute;
+                left: 24px;
+                top: 0;
+                transform: translate(-50%, 10px);
+            }
+
+            .item-description {
+                font-size: 1em;
+                margin-bottom: 12px;
+            }
+
+            .month-title {
+                font-size: 1.5em;
+                padding: 0 20px;
+            }
+
+            .month-divider {
+                margin: 40px 0 30px;
+            }
+
+            .item-photo {
+                border-radius: 8px;
+            }
+
+            .lightbox-caption {
+                font-size: 1em;
+                margin-top: 12px;
+            }
+
+            .year-progress {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>2025</h1>
+    </div>
+
+    <div class="year-progress" id="yearProgress">一月</div>
+
+    <div class="timeline-container">
+        <div class="timeline-line"></div>
+        <div class="timeline-progress" id="timelineProgress"></div>
+
+        <!-- January -->
+        <div class="month-divider">
+            <div class="month-divider-line"></div>
+            <div class="month-title">一月</div>
+        </div>
+
+        <div class="timeline-item" data-month="一月">
+            <div class="timeline-marker"></div>
+            <div class="item-content">
+                <div class="item-description">照顾朋友的狗狗馒头</div>
+                <div class="item-photo" data-caption="照顾朋友的狗狗馒头">
+                    <img src="Jan/照顾朋友的狗狗馒头.jpeg" alt="照顾朋友的狗狗馒头">
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-item" data-month="一月">
+            <div class="timeline-marker"></div>
+            <div class="item-content">
+                <div class="item-description">回国前收拾家里</div>
+                <div class="item-photo" data-caption="回国前收拾家里">
+                    <img src="Jan/回国前收拾家里.jpeg" alt="回国前收拾家里">
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-item" data-month="一月">
+            <div class="timeline-marker"></div>
+            <div class="item-content">
+                <div class="item-description">开始vibe coding 写一款小游戏</div>
+                <div class="item-photo" data-caption="开始vibe coding 写一款小游戏">
+                    <img src="Jan/开始vibe coding 写一款小游戏.jpeg" alt="开始vibe coding 写一款小游戏">
+                </div>
+            </div>
+        </div>
+
+        <!-- February -->
+        <div class="month-divider">
+            <div class="month-divider-line"></div>
+            <div class="month-title">二月</div>
+        </div>
+
+        <div class="timeline-item" data-month="二月">
+            <div class="timeline-marker"></div>
+            <div class="item-content">
+                <div class="item-description">回国吃到了宜宾燃面</div>
+                <div class="item-photo" data-caption="回国吃到了宜宾燃面">
+                    <img src="Feb/回国吃到了宜宾燃面.jpeg" alt="回国吃到了宜宾燃面">
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-item" data-month="二月">
+            <div class="timeline-marker"></div>
+            <div class="item-content">
+                <div class="item-description">家乡</div>
+                <div class="item-photo" data-caption="家乡">
+                    <img src="Feb/家乡.jpeg" alt="家乡">
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-item" data-month="二月">
+            <div class="timeline-marker"></div>
+            <div class="item-content">
+                <div class="item-description">李庄</div>
+                <div class="item-photo" data-caption="李庄">
+                    <img src="Feb/李庄.jpeg" alt="李庄">
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-item" data-month="二月">
+            <div class="timeline-marker"></div>
+            <div class="item-content">
+                <div class="item-description">去悉尼出差</div>
+                <div class="item-photo" data-caption="去悉尼出差">
+                    <img src="Feb/去悉尼出差.jpeg" alt="去悉尼出差">
+                </div>
+            </div>
+        </div>
+
+        <!-- March -->
+        <div class="month-divider">
+            <div class="month-divider-line"></div>
+            <div class="month-title">三月</div>
+        </div>
+
+        <div class="timeline-item" data-month="三月">
+            <div class="timeline-marker"></div>
+            <div class="item-content">
+                <div class="item-description">开始寄养米米</div>
+                <div class="item-photo" data-caption="开始寄养米米">
+                    <img src="Mar/开始寄养米米.jpeg" alt="开始寄养米米">
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-item" data-month="三月">
+            <div class="timeline-marker"></div>
+            <div class="item-content">
+                <div class="item-description">你睡这里那妈妈睡哪里</div>
+                <div class="item-photo" data-caption="你睡这里那妈妈睡哪里">
+                    <img src="Mar/你睡这里那妈妈睡哪里.JPG" alt="你睡这里那妈妈睡哪里">
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-item" data-month="三月">
+            <div class="timeline-marker"></div>
+            <div class="item-content">
+                <div class="item-description">跳水咸菜大获成功</div>
+                <div class="item-photo" data-caption="跳水咸菜大获成功">
+                    <img src="Mar/跳水咸菜大获成功.JPG" alt="跳水咸菜大获成功">
+                </div>
+            </div>
+        </div>
+
+        <!-- April -->
+        <div class="month-divider">
+            <div class="month-divider-line"></div>
+            <div class="month-title">四月</div>
+        </div>
+
+        <div class="timeline-item" data-month="四月">
+            <div class="timeline-marker"></div>
+            <div class="item-content">
+                <div class="item-description">老火车博物馆</div>
+                <div class="item-photo" data-caption="老火车博物馆">
+                    <img src="Apr/老火车博物馆.JPG" alt="老火车博物馆">
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-item" data-month="四月">
+            <div class="timeline-marker"></div>
+            <div class="item-content">
+                <div class="item-description">面点小天才深夜营业</div>
+                <div class="item-photo" data-caption="面点小天才深夜营业">
+                    <img src="Apr/面点小天才深夜营业.JPG" alt="面点小天才深夜营业">
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-item" data-month="四月">
+            <div class="timeline-marker"></div>
+            <div class="item-content">
+                <div class="item-description">发现ngv的夹层里藏了一个小小的文艺复兴馆</div>
+                <div class="item-photo" data-caption="发现ngv的夹层里藏了一个小小的文艺复兴馆">
+                    <img src="Apr/发现ngv的夹层里藏了一个小小的文艺复兴馆.JPG" alt="发现ngv的夹层里藏了一个小小的文艺复兴馆">
+                </div>
+            </div>
+        </div>
+
+        <!-- May -->
+        <div class="month-divider">
+            <div class="month-divider-line"></div>
+            <div class="month-title">五月</div>
+        </div>
+
+        <div class="timeline-item" data-month="五月">
+            <div class="timeline-marker"></div>
+            <div class="item-content">
+                <div class="item-description">澳洲大选</div>
+                <div class="item-photo" data-caption="澳洲大选">
+                    <img src="May/澳洲大选.JPG" alt="澳洲大选">
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-item" data-month="五月">
+            <div class="timeline-marker"></div>
+            <div class="item-content">
+                <div class="item-description">玩双人成行</div>
+                <div class="item-photo" data-caption="玩双人成行">
+                    <img src="May/双人成行.JPG" alt="玩双人成行">
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-item" data-month="五月">
+            <div class="timeline-marker"></div>
+            <div class="item-content">
+                <div class="item-description">参加婚礼一</div>
+                <div class="item-photo" data-caption="参加婚礼一">
+                    <img src="May/参加婚礼一.JPG" alt="参加婚礼一">
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-item" data-month="五月">
+            <div class="timeline-marker"></div>
+            <div class="item-content">
+                <div class="item-description">参加婚礼二</div>
+                <div class="item-photo" data-caption="参加婚礼二">
+                    <img src="May/参加婚礼二.jpeg" alt="参加婚礼二">
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-item" data-month="五月">
+            <div class="timeline-marker"></div>
+            <div class="item-content">
+                <div class="item-description">和 dj去日本过生日</div>
+                <div class="item-photo" data-caption="和 dj去日本过生日">
+                    <img src="May/和 dj去日本过生日.JPG" alt="和 dj去日本过生日">
+                </div>
+            </div>
+        </div>
+
+        <!-- June -->
+        <div class="month-divider">
+            <div class="month-divider-line"></div>
+            <div class="month-title">六月</div>
+        </div>
+
+        <div class="timeline-item" data-month="六月">
+            <div class="timeline-marker"></div>
+            <div class="item-content">
+                <div class="item-description">做手工戒指</div>
+                <div class="item-photo" data-caption="做手工戒指">
+                    <img src="Jun/做手工戒指.JPG" alt="做手工戒指">
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-item" data-month="六月">
+            <div class="timeline-marker"></div>
+            <div class="item-content">
+                <div class="item-description">出差悉尼</div>
+                <div class="item-photo" data-caption="出差悉尼">
+                    <img src="Jun/出差悉尼.JPG" alt="出差悉尼">
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-item" data-month="六月">
+            <div class="timeline-marker"></div>
+            <div class="item-content">
+                <div class="item-description">买了本有意思的书</div>
+                <div class="item-photo" data-caption="买了本有意思的书">
+                    <img src="Jun/买了本有意思的书.JPG" alt="买了本有意思的书">
+                </div>
+            </div>
+        </div>
+
+        <!-- July -->
+        <div class="month-divider">
+            <div class="month-divider-line"></div>
+            <div class="month-title">七月</div>
+        </div>
+
+        <div class="timeline-item" data-month="七月">
+            <div class="timeline-marker"></div>
+            <div class="item-content">
+                <div class="item-description">去巴拉瑞特 xams in July</div>
+                <div class="item-photo" data-caption="去巴拉瑞特 xams in July">
+                    <img src="Jul/去巴拉瑞特 xams in July.JPG" alt="去巴拉瑞特 xams in July">
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-item" data-month="七月">
+            <div class="timeline-marker"></div>
+            <div class="item-content">
+                <div class="item-description">淘金镇灯光秀</div>
+                <div class="item-photo" data-caption="淘金镇灯光秀">
+                    <img src="Jul/淘金镇灯光秀.JPG" alt="淘金镇灯光秀">
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-item" data-month="七月">
+            <div class="timeline-marker"></div>
+            <div class="item-content">
+                <div class="item-description">养成逛二手店的习惯</div>
+                <div class="item-photo" data-caption="养成逛二手店的习惯">
+                    <img src="Jul/养成逛二手店的习惯.JPG" alt="养成逛二手店的习惯">
+                </div>
+            </div>
+        </div>
+
+        <!-- August -->
+        <div class="month-divider">
+            <div class="month-divider-line"></div>
+            <div class="month-title">八月</div>
+        </div>
+
+        <div class="timeline-item" data-month="八月">
+            <div class="timeline-marker"></div>
+            <div class="item-content">
+                <div class="item-description">酒宝到家</div>
+                <div class="item-photo" data-caption="酒宝到家">
+                    <img src="Aug/酒宝到家.JPG" alt="酒宝到家">
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-item" data-month="八月">
+            <div class="timeline-marker"></div>
+            <div class="item-content">
+                <div class="item-description">公主们下楼</div>
+                <div class="item-photo" data-caption="公主们下楼">
+                    <img src="Aug/公主们下楼.JPG" alt="公主们下楼">
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-item" data-month="八月">
+            <div class="timeline-marker"></div>
+            <div class="item-content">
+                <div class="item-description">DJ悉尼出差</div>
+                <div class="item-photo" data-caption="DJ悉尼出差">
+                    <img src="Aug/DJ悉尼出差.JPG" alt="DJ悉尼出差">
+                </div>
+            </div>
+        </div>
+
+        <!-- September -->
+        <div class="month-divider">
+            <div class="month-divider-line"></div>
+            <div class="month-title">九月</div>
+        </div>
+
+        <div class="timeline-item" data-month="九月">
+            <div class="timeline-marker"></div>
+            <div class="item-content">
+                <div class="item-description">布鲁斯隆重登场</div>
+                <div class="item-photo" data-caption="布鲁斯隆重登场">
+                    <img src="Sep/布鲁斯隆重登场.JPG" alt="布鲁斯隆重登场">
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-item" data-month="九月">
+            <div class="timeline-marker"></div>
+            <div class="item-content">
+                <div class="item-description">好吃</div>
+                <div class="item-photo" data-caption="好吃">
+                    <img src="Sep/好吃.jpeg" alt="好吃">
+                </div>
+            </div>
+        </div>
+
+        <!-- October -->
+        <div class="month-divider">
+            <div class="month-divider-line"></div>
+            <div class="month-title">十月</div>
+        </div>
+
+        <div class="timeline-item" data-month="十月">
+            <div class="timeline-marker"></div>
+            <div class="item-content">
+                <div class="item-description">买了乐高柜子</div>
+                <div class="item-photo" data-caption="买了乐高柜子">
+                    <img src="Oct/买了乐高柜子.JPG" alt="买了乐高柜子">
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-item" data-month="十月">
+            <div class="timeline-marker"></div>
+            <div class="item-content">
+                <div class="item-description">赛博小狗</div>
+                <div class="item-photo" data-caption="赛博小狗">
+                    <img src="Oct/赛博小狗.JPG" alt="赛博小狗">
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-item" data-month="十月">
+            <div class="timeline-marker"></div>
+            <div class="item-content">
+                <div class="item-description">贴片木画</div>
+                <div class="item-photo" data-caption="贴片木画">
+                    <img src="Oct/贴片木画.JPG" alt="贴片木画">
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-item" data-month="十月">
+            <div class="timeline-marker"></div>
+            <div class="item-content">
+                <div class="item-description">湖边的乌鸦为阿玛尼代言</div>
+                <div class="item-photo" data-caption="湖边的乌鸦为阿玛尼代言">
+                    <img src="Oct/为阿玛尼代言.JPG" alt="湖边的乌鸦为阿玛尼代言">
+                </div>
+            </div>
+        </div>
+
+        <!-- November -->
+        <div class="month-divider">
+            <div class="month-divider-line"></div>
+            <div class="month-title">十一月</div>
+        </div>
+
+        <div class="timeline-item" data-month="十一月">
+            <div class="timeline-marker"></div>
+            <div class="item-content">
+                <div class="item-description">绿洲乐队来墨尔本</div>
+                <div class="item-photo" data-caption="绿洲乐队来墨尔本">
+                    <img src="Nov/绿洲乐队来墨尔本.JPG" alt="绿洲乐队来墨尔本">
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-item" data-month="十一月">
+            <div class="timeline-marker"></div>
+            <div class="item-content">
+                <div class="item-description">布鲁斯做活检</div>
+                <div class="item-photo" data-caption="布鲁斯做活检">
+                    <img src="Nov/布鲁斯做活检.JPG" alt="布鲁斯做活检">
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-item" data-month="十一月">
+            <div class="timeline-marker"></div>
+            <div class="item-content">
+                <div class="item-description">搬家</div>
+                <div class="item-photo" data-caption="搬家">
+                    <img src="Nov/搬家.JPG" alt="搬家">
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-item" data-month="十一月">
+            <div class="timeline-marker"></div>
+            <div class="item-content">
+                <div class="item-description">brighter tech award</div>
+                <div class="item-photo" data-caption="brighter tech award">
+                    <img src="Nov/brighter tech award.JPG" alt="brighter tech award">
+                </div>
+            </div>
+        </div>
+
+        <!-- December -->
+        <div class="month-divider">
+            <div class="month-divider-line"></div>
+            <div class="month-title">十二月</div>
+        </div>
+
+        <div class="timeline-item" data-month="十二月">
+            <div class="timeline-marker"></div>
+            <div class="item-content">
+                <div class="item-description">哄骗小狗吃药</div>
+                <div class="item-photo" data-caption="哄骗小狗吃药">
+                    <img src="Dec/哄骗小狗吃药.JPG" alt="哄骗小狗吃药">
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-item" data-month="十二月">
+            <div class="timeline-marker"></div>
+            <div class="item-content">
+                <div class="item-description">邻居圣诞装饰</div>
+                <div class="item-photo" data-caption="邻居圣诞装饰">
+                    <img src="Dec/邻居圣诞装饰.JPG" alt="邻居圣诞装饰">
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-item" data-month="十二月">
+            <div class="timeline-marker"></div>
+            <div class="item-content">
+                <div class="item-description">另一个邻居圣诞装饰</div>
+                <div class="item-photo" data-caption="另一个邻居圣诞装饰">
+                    <img src="Dec/另一个邻居的圣诞装饰.JPG" alt="另一个邻居圣诞装饰">
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-item" data-month="十二月">
+            <div class="timeline-marker"></div>
+            <div class="item-content">
+                <div class="item-description">大家好这是我祖宗</div>
+                <div class="item-photo" data-caption="大家好这是我祖宗">
+                    <img src="Dec/大家好这是我祖宗.JPG" alt="大家好这是我祖宗">
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-item" data-month="十二月">
+            <div class="timeline-marker"></div>
+            <div class="item-content">
+                <div class="item-description">祖宗第一次看到大海</div>
+                <div class="item-photo" data-caption="祖宗第一次看到大海">
+                    <img src="Dec/祖宗第一次看到大海.JPG" alt="祖宗第一次看到大海">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox">
+        <button class="lightbox-close" type="button" aria-label="关闭灯箱">×</button>
+        <div class="lightbox-content">
+            <img id="lightbox-img" src="" alt="">
+            <div class="lightbox-caption" id="lightbox-caption"></div>
+        </div>
+    </div>
+
+    <script>
+        const timelineContainer = document.querySelector('.timeline-container');
+        const timelineProgress = document.getElementById('timelineProgress');
+        const timelineItems = Array.from(document.querySelectorAll('.timeline-item'));
+        const monthDividers = Array.from(document.querySelectorAll('.month-divider'));
+        const revealElements = Array.from(document.querySelectorAll('.timeline-item, .month-divider'));
+        const monthDisplay = document.getElementById('yearProgress');
+        const originalBodyOverflow = document.body.style.overflow;
+
+        // 根据真实顺序分配左右布局
+        timelineItems.forEach((item, index) => {
+            item.classList.add(index % 2 === 0 ? 'left' : 'right');
+        });
+
+        // IntersectionObserver 驱动月份高亮
+        let activeMonth = monthDividers[0]?.querySelector('.month-title')?.textContent.trim() || '一月';
+        monthDisplay.textContent = activeMonth;
+
+        if ('IntersectionObserver' in window) {
+            const monthObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const title = entry.target.querySelector('.month-title');
+                        const label = title ? title.textContent.trim() : null;
+                        if (label && label !== activeMonth) {
+                            activeMonth = label;
+                            monthDisplay.textContent = label;
+                        }
+                    }
+                });
+            }, { rootMargin: '-40% 0px -40% 0px', threshold: 0 });
+
+            monthDividers.forEach(divider => monthObserver.observe(divider));
+        } else {
+            const fallbackUpdateMonth = () => {
+                let candidate = activeMonth;
+                const anchor = window.innerHeight * 0.3;
+                monthDividers.forEach(divider => {
+                    const rect = divider.getBoundingClientRect();
+                    if (rect.top < anchor && rect.bottom > 0) {
+                        const title = divider.querySelector('.month-title');
+                        if (title) {
+                            candidate = title.textContent.trim();
+                        }
+                    }
+                });
+                if (candidate !== activeMonth) {
+                    activeMonth = candidate;
+                    monthDisplay.textContent = candidate;
+                }
+            };
+
+            window.addEventListener('scroll', fallbackUpdateMonth);
+            window.addEventListener('resize', fallbackUpdateMonth);
+        }
+
+        // 滚动进度与入场动画
+        let ticking = false;
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    updateProgress();
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        });
+
+        window.addEventListener('resize', updateProgress);
+
+        function updateProgress() {
+            if (!timelineContainer) return;
+
+            const containerTop = timelineContainer.offsetTop;
+            const containerHeight = timelineContainer.offsetHeight;
+            const viewportAnchor = window.scrollY + window.innerHeight * 0.3;
+            const progressHeight = Math.min(Math.max(viewportAnchor - containerTop, 0), containerHeight);
+            timelineProgress.style.height = progressHeight + 'px';
+
+            revealElements.forEach(element => {
+                if (element.classList.contains('visible')) return;
+                const rect = element.getBoundingClientRect();
+                if (rect.top < window.innerHeight * 0.7) {
+                    element.classList.add('visible');
+                }
+            });
+        }
+
+        window.addEventListener('load', updateProgress);
+        updateProgress();
+
+        // 照片灯箱与无障碍增强
+        const photoItems = document.querySelectorAll('.item-photo');
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+        const lightboxCaption = document.getElementById('lightbox-caption');
+        const lightboxClose = document.querySelector('.lightbox-close');
+        let activePhotoTrigger = null;
+
+        function openLightbox(item) {
+            const img = item.querySelector('img');
+            const caption = item.dataset.caption || '图片';
+
+            if (img) {
+                lightboxImg.src = img.src;
+                lightboxImg.alt = img.alt || caption;
+            }
+
+            lightboxCaption.textContent = caption;
+            lightbox.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            activePhotoTrigger = item;
+            if (lightboxClose) {
+                lightboxClose.focus();
+            }
+        }
+
+        photoItems.forEach((item, index) => {
+            const caption = item.dataset.caption || `照片 ${index + 1}`;
+            const img = item.querySelector('img');
+
+            if (img) {
+                img.loading = 'lazy';
+                img.decoding = 'async';
+            }
+
+            item.setAttribute('role', 'button');
+            item.setAttribute('tabindex', '0');
+            item.setAttribute('aria-label', caption);
+
+            item.addEventListener('click', () => openLightbox(item));
+            item.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    openLightbox(item);
+                }
+            });
+        });
+
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+            document.body.style.overflow = originalBodyOverflow || '';
+            if (activePhotoTrigger) {
+                activePhotoTrigger.focus();
+                activePhotoTrigger = null;
+            }
+        }
+
+        if (lightboxClose) {
+            lightboxClose.addEventListener('click', closeLightbox);
+        }
+
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox) {
+                closeLightbox();
+            }
+        });
+
+        lightbox.addEventListener('keydown', (e) => {
+            if (e.key === 'Tab' && lightbox.classList.contains('active')) {
+                e.preventDefault();
+                lightboxClose?.focus();
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && lightbox.classList.contains('active')) {
+                closeLightbox();
+            }
+        });
+    </script>
+</body>
+</html>
