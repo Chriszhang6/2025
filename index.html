@@ -1369,6 +1369,15 @@
             });
         }
 
+        function centerDiscoverCard(card, behavior = 'auto') {
+            if (!discoverTrack || !card) return;
+            const trackRect = discoverTrack.getBoundingClientRect();
+            const cardRect = card.getBoundingClientRect();
+            const offsetLeft = cardRect.left - trackRect.left;
+            const targetLeft = offsetLeft - (trackRect.width - cardRect.width) / 2;
+            discoverTrack.scrollTo({ left: targetLeft, behavior });
+        }
+
         function updateDiscoverFocus() {
             if (!discoverTrack) return;
             if (!discoverCards.length) {
@@ -1543,10 +1552,20 @@
 
             if (normalized === 'discover') {
                 ensureDiscoverView();
+                refreshDiscoverCardCache();
                 if (discoverTrack) {
                     discoverTrack.scrollLeft = 0;
                 }
-                scheduleDiscoverFocus();
+                const firstCard = discoverCards[0];
+                if (firstCard) {
+                    window.requestAnimationFrame(() => {
+                        centerDiscoverCard(firstCard);
+                        setExpandedDiscoverCard(firstCard);
+                    });
+                } else {
+                    scheduleDiscoverFocus();
+                }
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             } else {
                 collapseDiscoverCard();
             }
