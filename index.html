@@ -45,6 +45,11 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.04);
             padding: 28px clamp(24px, 4vw, 60px);
             z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            flex-wrap: wrap;
         }
 
         .header h1 {
@@ -52,6 +57,53 @@
             font-weight: 500;
             letter-spacing: 0.2em;
             color: var(--fg);
+        }
+
+        body.mode-discover {
+            overflow-x: hidden;
+        }
+
+        .view-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(7, 9, 15, 0.9);
+        }
+
+        .view-toggle-btn {
+            border: none;
+            background: transparent;
+            color: var(--muted);
+            letter-spacing: 0.32em;
+            font-size: 0.85em;
+            font-weight: 600;
+            padding: 12px 18px;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .view-toggle-btn.active {
+            background: linear-gradient(135deg, rgba(169, 255, 127, 0.12), rgba(46, 55, 80, 0.4));
+            color: var(--fg);
+            box-shadow: 0 8px 20px rgba(2, 2, 6, 0.5);
+        }
+
+        body.mode-list .discover-container {
+            display: none;
+        }
+
+        body.mode-discover .timeline-container {
+            display: none;
+        }
+
+        body.mode-discover .year-progress {
+            opacity: 0;
+            transform: translateY(-10px);
+            pointer-events: none;
         }
 
         .timeline-container {
@@ -311,16 +363,182 @@
             letter-spacing: 0.25em;
             z-index: 99;
             backdrop-filter: blur(10px);
+            transition: opacity 0.35s ease, transform 0.35s ease;
+        }
+
+        .discover-container {
+            padding: 0 clamp(24px, 6vw, 120px) 80px;
+            margin-top: 160px;
+            position: relative;
+        }
+
+        .discover-hint {
+            font-size: 0.95em;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .discover-hint::before,
+        .discover-hint::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: var(--line);
+        }
+
+        .discover-track {
+            display: grid;
+            grid-auto-flow: column;
+            grid-auto-columns: clamp(90px, 7vw, 140px);
+            gap: clamp(18px, 3vw, 32px);
+            overflow-x: auto;
+            overflow-y: visible;
+            padding: 40px 10px 80px;
+            scroll-snap-type: x mandatory;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.4) transparent;
+            cursor: grab;
+        }
+
+        .discover-track.is-dragging {
+            cursor: grabbing;
+        }
+
+        .discover-track::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .discover-track::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 999px;
+        }
+
+        .discover-card {
+            position: relative;
+            background: linear-gradient(180deg, rgba(8, 11, 20, 0.95), rgba(3, 5, 10, 0.95));
+            border-radius: 28px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 24px 14px 40px;
+            min-height: 420px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            box-shadow: 0 20px 40px rgba(2, 2, 6, 0.65);
+            scroll-snap-align: start;
+            isolation: isolate;
+            overflow: visible;
+            transition: transform 0.4s ease;
+        }
+
+        .discover-card::after {
+            content: "";
+            position: absolute;
+            inset: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 22px;
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        .discover-card.is-expanded {
+            transform: translateY(-18px);
+            z-index: 5;
+        }
+
+        .discover-month {
+            writing-mode: vertical-rl;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            font-size: 0.8em;
+            color: var(--muted);
+            text-orientation: upright;
+            white-space: nowrap;
+            flex-shrink: 0;
+            margin-bottom: 24px;
+        }
+
+        .discover-photo {
+            width: 100%;
+            aspect-ratio: 2 / 5;
+            border-radius: 18px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.45);
+            cursor: pointer;
+            transition: transform 0.4s ease, box-shadow 0.4s ease, width 0.4s ease, aspect-ratio 0.4s ease, border 0.4s ease;
+        }
+
+        .discover-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: grayscale(40%);
+            transition: transform 0.5s ease, filter 0.5s ease;
+        }
+
+        .discover-card.is-expanded .discover-photo {
+            width: clamp(240px, 32vw, 440px);
+            aspect-ratio: 4 / 3;
+            border-radius: 22px;
+            border-color: rgba(255, 255, 255, 0.35);
+            box-shadow: 0 35px 55px rgba(0, 0, 0, 0.65);
+        }
+
+        .discover-card.is-expanded .discover-photo img {
+            transform: scale(1.08);
+            filter: grayscale(0%);
+        }
+
+        .discover-detail {
+            position: relative;
+            margin: 18px auto 0;
+            background: rgba(5, 7, 14, 0.92);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 16px;
+            padding: 16px 22px;
+            width: clamp(220px, 30vw, 420px);
+            text-align: center;
+            color: var(--fg);
+            font-size: 1em;
+            line-height: 1.5;
+            letter-spacing: 0.08em;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease, transform 0.25s ease, max-height 0.3s ease;
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+            max-height: 0;
+            overflow: hidden;
+            transform: translateY(10px);
+        }
+
+        .discover-card.is-expanded .discover-detail {
+            opacity: 1;
+            pointer-events: auto;
+            max-height: 260px;
+            transform: translateY(0);
         }
 
         @media (max-width: 768px) {
             .header {
                 padding: 20px;
+                flex-direction: column;
+                align-items: flex-start;
             }
 
             .header h1 {
                 font-size: 1.5em;
                 letter-spacing: 0.2em;
+            }
+
+            .view-toggle {
+                width: 100%;
+                justify-content: center;
             }
 
             .timeline-container {
@@ -382,12 +600,38 @@
             .year-progress {
                 display: none;
             }
+
+            .discover-container {
+                margin-top: 120px;
+                padding: 0 20px 60px;
+            }
+
+            .discover-track {
+                grid-auto-columns: minmax(110px, 35vw);
+                padding: 20px 0 10px;
+            }
+
+            .discover-card {
+                min-height: 360px;
+            }
+
+            .discover-detail {
+                width: min(260px, 80vw);
+                padding: 14px 16px;
+                font-size: 0.95em;
+                line-height: 1.4;
+                max-height: 200px;
+            }
         }
     </style>
 </head>
-<body>
-    <div class="header">
+<body class="mode-list">
+    <div class="header" role="banner">
         <h1>2025</h1>
+        <div class="view-toggle" role="group" aria-label="视图模式">
+            <button type="button" class="view-toggle-btn active" data-view="list" aria-pressed="true">LIST</button>
+            <button type="button" class="view-toggle-btn" data-view="discover" aria-pressed="false">DISCOVER</button>
+        </div>
     </div>
 
     <div class="year-progress" id="yearProgress">一月</div>
@@ -889,6 +1133,11 @@
         </div>
     </div>
 
+    <div class="discover-container" aria-hidden="true">
+        <div class="discover-hint">SCROLL TO DISCOVER · 左右滑动</div>
+        <div class="discover-track" id="discoverTrack"></div>
+    </div>
+
     <!-- Lightbox -->
     <div class="lightbox" id="lightbox">
         <button class="lightbox-close" type="button" aria-label="关闭灯箱">×</button>
@@ -905,16 +1154,64 @@
         const monthDividers = Array.from(document.querySelectorAll('.month-divider'));
         const revealElements = Array.from(document.querySelectorAll('.timeline-item, .month-divider'));
         const monthDisplay = document.getElementById('yearProgress');
+        const viewToggleButtons = document.querySelectorAll('[data-view]');
+        const discoverTrack = document.getElementById('discoverTrack');
+        const discoverContainer = document.querySelector('.discover-container');
         const originalBodyOverflow = document.body.style.overflow;
+        let discoverBuilt = false;
+        let currentView = document.body.classList.contains('mode-discover') ? 'discover' : 'list';
+        let photoSequence = 0;
+        let expandedDiscoverCard = null;
 
-        // 根据真实顺序分配左右布局
+        if (discoverTrack) {
+            discoverTrack.addEventListener('wheel', (event) => {
+                if (!document.body.classList.contains('mode-discover')) return;
+                if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
+                event.preventDefault();
+                discoverTrack.scrollLeft += event.deltaY;
+            }, { passive: false });
+
+            let dragActive = false;
+            let dragPointerId = null;
+            let dragStartX = 0;
+            let dragScrollStart = 0;
+
+            const endDrag = () => {
+                if (!dragActive) return;
+                if (dragPointerId !== null) {
+                    discoverTrack.releasePointerCapture(dragPointerId);
+                }
+                dragActive = false;
+                dragPointerId = null;
+                discoverTrack.classList.remove('is-dragging');
+            };
+
+            discoverTrack.addEventListener('pointerdown', (event) => {
+                if (!document.body.classList.contains('mode-discover')) return;
+                dragActive = true;
+                dragPointerId = event.pointerId;
+                dragStartX = event.clientX;
+                dragScrollStart = discoverTrack.scrollLeft;
+                discoverTrack.setPointerCapture(dragPointerId);
+                discoverTrack.classList.add('is-dragging');
+            });
+
+            discoverTrack.addEventListener('pointermove', (event) => {
+                if (!dragActive || event.pointerId !== dragPointerId) return;
+                discoverTrack.scrollLeft = dragScrollStart - (event.clientX - dragStartX);
+            });
+
+            discoverTrack.addEventListener('pointerup', endDrag);
+            discoverTrack.addEventListener('pointerleave', endDrag);
+            discoverTrack.addEventListener('pointercancel', endDrag);
+        }
+
         timelineItems.forEach((item, index) => {
             item.classList.add(index % 2 === 0 ? 'left' : 'right');
         });
 
-        // IntersectionObserver 驱动月份高亮
         let activeMonth = monthDividers[0]?.querySelector('.month-title')?.textContent.trim() || '一月';
-        monthDisplay.textContent = activeMonth;
+        refreshMonthDisplay();
 
         if ('IntersectionObserver' in window) {
             const monthObserver = new IntersectionObserver((entries) => {
@@ -924,7 +1221,7 @@
                         const label = title ? title.textContent.trim() : null;
                         if (label && label !== activeMonth) {
                             activeMonth = label;
-                            monthDisplay.textContent = label;
+                            refreshMonthDisplay();
                         }
                     }
                 });
@@ -946,7 +1243,7 @@
                 });
                 if (candidate !== activeMonth) {
                     activeMonth = candidate;
-                    monthDisplay.textContent = candidate;
+                    refreshMonthDisplay();
                 }
             };
 
@@ -990,7 +1287,6 @@
         updateProgress();
 
         // 照片灯箱与无障碍增强
-        const photoItems = document.querySelectorAll('.item-photo');
         const lightbox = document.getElementById('lightbox');
         const lightboxImg = document.getElementById('lightbox-img');
         const lightboxCaption = document.getElementById('lightbox-caption');
@@ -1015,8 +1311,11 @@
             }
         }
 
-        photoItems.forEach((item, index) => {
-            const caption = item.dataset.caption || `照片 ${index + 1}`;
+        function wirePhotoItem(item) {
+            if (!item || item.dataset.lightboxReady === 'true') return;
+            photoSequence += 1;
+            const fallback = `照片 ${photoSequence}`;
+            const caption = (item.dataset.caption || '').trim() || fallback;
             const img = item.querySelector('img');
 
             if (img) {
@@ -1027,6 +1326,7 @@
             item.setAttribute('role', 'button');
             item.setAttribute('tabindex', '0');
             item.setAttribute('aria-label', caption);
+            item.dataset.lightboxReady = 'true';
 
             item.addEventListener('click', () => openLightbox(item));
             item.addEventListener('keydown', (e) => {
@@ -1035,7 +1335,33 @@
                     openLightbox(item);
                 }
             });
-        });
+        }
+
+        document.querySelectorAll('.item-photo').forEach(item => wirePhotoItem(item));
+
+        const isDiscoverActive = () => currentView === 'discover';
+
+        function setExpandedDiscoverCard(card) {
+            if (!isDiscoverActive()) return;
+            if (expandedDiscoverCard === card) return;
+            if (expandedDiscoverCard) {
+                expandedDiscoverCard.classList.remove('is-expanded');
+            }
+            expandedDiscoverCard = card;
+            if (card) {
+                card.classList.add('is-expanded');
+            }
+        }
+
+        function collapseDiscoverCard(targetCard) {
+            if (targetCard && expandedDiscoverCard !== targetCard) {
+                return;
+            }
+            if (expandedDiscoverCard) {
+                expandedDiscoverCard.classList.remove('is-expanded');
+                expandedDiscoverCard = null;
+            }
+        }
 
         function closeLightbox() {
             lightbox.classList.remove('active');
@@ -1068,6 +1394,116 @@
                 closeLightbox();
             }
         });
+
+        function extractPhotoData(item, index) {
+            if (!item) return null;
+            const descriptionEl = item.querySelector('.item-description');
+            const description = descriptionEl ? descriptionEl.textContent.trim() : `照片 ${index + 1}`;
+            const img = item.querySelector('img');
+            if (!img) return null;
+            const src = img.getAttribute('src');
+            if (!src) return null;
+            const month = item.dataset.month || '';
+            return {
+                month,
+                description,
+                caption: month ? `${month} · ${description}` : description,
+                src,
+                alt: img.getAttribute('alt') || description
+            };
+        }
+
+        function createDiscoverCard(data) {
+            const card = document.createElement('article');
+            card.className = 'discover-card';
+
+            const monthLabel = document.createElement('p');
+            monthLabel.className = 'discover-month';
+            monthLabel.textContent = data.month || '——';
+
+            const photoWrap = document.createElement('div');
+            photoWrap.className = 'discover-photo';
+            photoWrap.dataset.caption = data.caption;
+
+            const img = document.createElement('img');
+            img.src = data.src;
+            img.alt = data.alt;
+            img.loading = 'lazy';
+            img.decoding = 'async';
+            photoWrap.appendChild(img);
+
+            const detail = document.createElement('div');
+            detail.className = 'discover-detail';
+            detail.textContent = data.description;
+
+            card.append(monthLabel, photoWrap, detail);
+            wirePhotoItem(photoWrap);
+
+            card.addEventListener('pointerenter', () => setExpandedDiscoverCard(card));
+            card.addEventListener('focusin', () => setExpandedDiscoverCard(card));
+            card.addEventListener('pointerleave', () => collapseDiscoverCard(card));
+            card.addEventListener('focusout', (event) => {
+                if (!card.contains(event.relatedTarget)) {
+                    collapseDiscoverCard(card);
+                }
+            });
+
+            return card;
+        }
+
+        function ensureDiscoverView() {
+            if (discoverBuilt || !discoverTrack) return;
+            const fragment = document.createDocumentFragment();
+            timelineItems.forEach((item, index) => {
+                const data = extractPhotoData(item, index);
+                if (!data) return;
+                fragment.appendChild(createDiscoverCard(data));
+            });
+            discoverTrack.appendChild(fragment);
+            discoverBuilt = true;
+        }
+
+        function refreshMonthDisplay() {
+            if (!monthDisplay) return;
+            monthDisplay.textContent = currentView === 'discover' ? 'DISCOVER' : activeMonth;
+        }
+
+        function updateViewMode(mode = 'list') {
+            const normalized = mode === 'discover' ? 'discover' : 'list';
+            currentView = normalized;
+
+            document.body.classList.toggle('mode-discover', normalized === 'discover');
+            document.body.classList.toggle('mode-list', normalized === 'list');
+
+            viewToggleButtons.forEach(btn => {
+                const isActive = btn.dataset.view === normalized;
+                btn.classList.toggle('active', isActive);
+                btn.setAttribute('aria-pressed', String(isActive));
+            });
+
+            if (discoverContainer) {
+                discoverContainer.setAttribute('aria-hidden', String(normalized !== 'discover'));
+            }
+
+            if (normalized === 'discover') {
+                ensureDiscoverView();
+                if (discoverTrack) {
+                    discoverTrack.scrollLeft = 0;
+                }
+            } else {
+                collapseDiscoverCard();
+            }
+
+            refreshMonthDisplay();
+        }
+
+        viewToggleButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                updateViewMode(button.dataset.view || 'list');
+            });
+        });
+
+        updateViewMode(currentView);
     </script>
 </body>
 </html>
