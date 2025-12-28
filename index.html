@@ -71,6 +71,7 @@
             border-radius: 999px;
             border: 1px solid rgba(255, 255, 255, 0.12);
             background: rgba(7, 9, 15, 0.9);
+            overflow: hidden;
         }
 
         .view-toggle-btn {
@@ -799,13 +800,13 @@
         }
     </style>
 </head>
-<body class="mode-list">
+<body class="mode-shuffle">
     <div class="header" role="banner">
         <h1>2025</h1>
         <div class="view-toggle" role="group" aria-label="视图模式">
-            <button type="button" class="view-toggle-btn active" data-view="list" aria-pressed="true">LIST</button>
+            <button type="button" class="view-toggle-btn" data-view="list" aria-pressed="false">LIST</button>
             <button type="button" class="view-toggle-btn" data-view="discover" aria-pressed="false">DISCOVER</button>
-            <button type="button" class="view-toggle-btn" data-view="shuffle" aria-pressed="false">SHUFFLE</button>
+            <button type="button" class="view-toggle-btn active" data-view="shuffle" aria-pressed="true">SHUFFLE</button>
         </div>
     </div>
 
@@ -1354,7 +1355,7 @@
         const shuffleButton = document.getElementById('shuffleButton');
         const originalBodyOverflow = document.body.style.overflow;
         let discoverBuilt = false;
-        let currentView = document.body.classList.contains('mode-discover') ? 'discover' : 'list';
+        let currentView = document.body.classList.contains('mode-discover') ? 'discover' : document.body.classList.contains('mode-shuffle') ? 'shuffle' : 'list';
         let photoSequence = 0;
         let expandedDiscoverCard = null;
         let discoverCards = [];
