@@ -1779,29 +1779,38 @@
             const photo = getRandomPhoto();
             if (!photo) return;
 
-            // Animation duration constants (in milliseconds)
-            const FADE_OUT_DURATION = 300;
-            const FADE_IN_DURATION = 400;
+            let nextImg = new Image();
+            let hasSwappedContent = false;
 
-            // Add fade-out animation
-            shuffleCard.style.animation = `shuffleFadeOut ${FADE_OUT_DURATION}ms ease forwards`;
-            
-            // Wait for fade-out to complete, then change content and fade-in
-            setTimeout(() => {
+            const cleanup = () => {
+                nextImg.onload = null;
+                nextImg.onerror = null;
+            };
+
+            const handleLoadFailure = (reason) => {
+                console.warn('Shuffle image load failed:', reason, photo.src);
+                cleanup();
+            };
+
+            const swapContent = () => {
+                if (hasSwappedContent) {
+                    cleanup();
+                    return;
+                }
+                hasSwappedContent = true;
                 shuffleImg.src = photo.src;
                 shuffleImg.alt = photo.alt;
                 shuffleMonth.textContent = photo.month || '——';
                 shuffleDescription.textContent = photo.description;
                 shufflePhoto.dataset.caption = photo.caption;
+                shuffleCard.style.animation = '';
+                cleanup();
+            };
 
-                // Trigger fade-in animation
-                shuffleCard.style.animation = `shuffleFadeIn ${FADE_IN_DURATION}ms ease forwards`;
-                
-                // Clear animation after completion so it doesn't interfere
-                setTimeout(() => {
-                    shuffleCard.style.animation = '';
-                }, FADE_IN_DURATION);
-            }, FADE_OUT_DURATION);
+            nextImg.onload = swapContent;
+            nextImg.onerror = () => handleLoadFailure('preload-error');
+
+            nextImg.src = photo.src;
         }
 
         if (shuffleButton) {
