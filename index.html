@@ -106,6 +106,28 @@
             pointer-events: none;
         }
 
+        body.mode-list .shuffle-container {
+            display: none;
+        }
+
+        body.mode-discover .shuffle-container {
+            display: none;
+        }
+
+        body.mode-shuffle .timeline-container {
+            display: none;
+        }
+
+        body.mode-shuffle .discover-container {
+            display: none;
+        }
+
+        body.mode-shuffle .year-progress {
+            opacity: 0;
+            transform: translateY(-10px);
+            pointer-events: none;
+        }
+
         .timeline-container {
             margin-top: clamp(140px, 12vh, 220px);
             padding: 0 clamp(24px, 6vw, 140px) 140px;
@@ -529,6 +551,131 @@
             transform: translateY(0);
         }
 
+        .shuffle-container {
+            padding: 0 clamp(24px, 6vw, 120px) 80px;
+            margin-top: clamp(180px, 16vh, 260px);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 70vh;
+        }
+
+        .shuffle-card {
+            position: relative;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            padding: clamp(24px, 3vw, 36px);
+            max-width: 720px;
+            width: 100%;
+            box-shadow: 0 25px 60px rgba(2, 2, 6, 0.45);
+            backdrop-filter: blur(18px);
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            animation: fadeIn 0.6s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .shuffle-photo {
+            position: relative;
+            overflow: hidden;
+            background: #000;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 25px 60px rgba(5, 5, 10, 0.6);
+            aspect-ratio: 4 / 3;
+            border-radius: var(--radius-sm);
+        }
+
+        .shuffle-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            filter: grayscale(10%);
+            display: block;
+        }
+
+        .shuffle-photo:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 30px rgba(255, 255, 255, 0.1);
+        }
+
+        .shuffle-photo:hover img {
+            filter: grayscale(0%);
+            transform: scale(1.05);
+        }
+
+        .shuffle-info {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .shuffle-month {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 24px;
+            background: rgba(169, 255, 127, 0.08);
+            border: 1px solid rgba(169, 255, 127, 0.2);
+            border-radius: 999px;
+            font-size: 0.85em;
+            color: var(--accent);
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+        }
+
+        .shuffle-description {
+            font-size: 1.2em;
+            color: var(--fg);
+            line-height: 1.6;
+            font-weight: 500;
+            letter-spacing: 0.03em;
+            text-align: center;
+        }
+
+        .shuffle-button {
+            margin-top: 24px;
+            padding: 16px 48px;
+            background: linear-gradient(135deg, rgba(169, 255, 127, 0.15), rgba(46, 55, 80, 0.5));
+            border: 1px solid rgba(169, 255, 127, 0.3);
+            border-radius: 999px;
+            color: var(--fg);
+            font-size: 1em;
+            font-weight: 600;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(2, 2, 6, 0.5);
+        }
+
+        .shuffle-button:hover {
+            background: linear-gradient(135deg, rgba(169, 255, 127, 0.25), rgba(46, 55, 80, 0.6));
+            border-color: rgba(169, 255, 127, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(169, 255, 127, 0.2);
+        }
+
+        .shuffle-button:active {
+            transform: translateY(0);
+        }
+
         @media (max-width: 768px) {
             .header {
                 padding: 20px;
@@ -629,6 +776,26 @@
                 line-height: 1.4;
                 max-height: 200px;
             }
+
+            .shuffle-container {
+                margin-top: 200px;
+                padding: 0 20px 80px;
+                min-height: 60vh;
+            }
+
+            .shuffle-card {
+                padding: 20px;
+                gap: 18px;
+            }
+
+            .shuffle-description {
+                font-size: 1.05em;
+            }
+
+            .shuffle-button {
+                padding: 14px 36px;
+                font-size: 0.9em;
+            }
         }
     </style>
 </head>
@@ -638,6 +805,7 @@
         <div class="view-toggle" role="group" aria-label="视图模式">
             <button type="button" class="view-toggle-btn active" data-view="list" aria-pressed="true">LIST</button>
             <button type="button" class="view-toggle-btn" data-view="discover" aria-pressed="false">DISCOVER</button>
+            <button type="button" class="view-toggle-btn" data-view="shuffle" aria-pressed="false">SHUFFLE</button>
         </div>
     </div>
 
@@ -1145,6 +1313,19 @@
         <div class="discover-track" id="discoverTrack"></div>
     </div>
 
+    <div class="shuffle-container" aria-hidden="true">
+        <div class="shuffle-card" id="shuffleCard">
+            <div class="shuffle-photo" id="shufflePhoto">
+                <img id="shuffleImg" src="" alt="">
+            </div>
+            <div class="shuffle-info">
+                <div class="shuffle-month" id="shuffleMonth"></div>
+                <div class="shuffle-description" id="shuffleDescription"></div>
+            </div>
+            <button type="button" class="shuffle-button" id="shuffleButton">SHUFFLE AGAIN</button>
+        </div>
+    </div>
+
     <!-- Lightbox -->
     <div class="lightbox" id="lightbox">
         <button class="lightbox-close" type="button" aria-label="关闭灯箱">×</button>
@@ -1164,6 +1345,13 @@
         const viewToggleButtons = document.querySelectorAll('[data-view]');
         const discoverTrack = document.getElementById('discoverTrack');
         const discoverContainer = document.querySelector('.discover-container');
+        const shuffleContainer = document.querySelector('.shuffle-container');
+        const shuffleCard = document.getElementById('shuffleCard');
+        const shufflePhoto = document.getElementById('shufflePhoto');
+        const shuffleImg = document.getElementById('shuffleImg');
+        const shuffleMonth = document.getElementById('shuffleMonth');
+        const shuffleDescription = document.getElementById('shuffleDescription');
+        const shuffleButton = document.getElementById('shuffleButton');
         const originalBodyOverflow = document.body.style.overflow;
         let discoverBuilt = false;
         let currentView = document.body.classList.contains('mode-discover') ? 'discover' : 'list';
@@ -1171,6 +1359,8 @@
         let expandedDiscoverCard = null;
         let discoverCards = [];
         let discoverScrollRaf = null;
+        let allPhotos = [];
+        let lastShuffledIndex = -1;
 
         if (discoverTrack) {
             discoverTrack.addEventListener('wheel', (event) => {
@@ -1532,15 +1722,67 @@
 
         function refreshMonthDisplay() {
             if (!monthDisplay) return;
-            monthDisplay.textContent = currentView === 'discover' ? 'DISCOVER' : activeMonth;
+            monthDisplay.textContent = currentView === 'discover' ? 'DISCOVER' : currentView === 'shuffle' ? 'SHUFFLE' : activeMonth;
+        }
+
+        function buildPhotosList() {
+            if (allPhotos.length > 0) return;
+            timelineItems.forEach((item, index) => {
+                const data = extractPhotoData(item, index);
+                if (data) {
+                    allPhotos.push(data);
+                }
+            });
+        }
+
+        function getRandomPhoto() {
+            buildPhotosList();
+            if (allPhotos.length === 0) return null;
+            
+            if (allPhotos.length === 1) {
+                return allPhotos[0];
+            }
+
+            let randomIndex;
+            do {
+                randomIndex = Math.floor(Math.random() * allPhotos.length);
+            } while (randomIndex === lastShuffledIndex && allPhotos.length > 1);
+
+            lastShuffledIndex = randomIndex;
+            return allPhotos[randomIndex];
+        }
+
+        function displayShuffledPhoto() {
+            const photo = getRandomPhoto();
+            if (!photo) return;
+
+            shuffleImg.src = photo.src;
+            shuffleImg.alt = photo.alt;
+            shuffleMonth.textContent = photo.month || '——';
+            shuffleDescription.textContent = photo.description;
+            shufflePhoto.dataset.caption = photo.caption;
+
+            // Trigger animation by removing and re-adding the card
+            shuffleCard.style.animation = 'none';
+            void shuffleCard.offsetHeight; // Force reflow
+            shuffleCard.style.animation = '';
+        }
+
+        if (shuffleButton) {
+            shuffleButton.addEventListener('click', displayShuffledPhoto);
+        }
+
+        if (shufflePhoto) {
+            wirePhotoItem(shufflePhoto);
         }
 
         function updateViewMode(mode = 'list') {
-            const normalized = mode === 'discover' ? 'discover' : 'list';
+            const normalized = mode === 'shuffle' ? 'shuffle' : mode === 'discover' ? 'discover' : 'list';
             currentView = normalized;
 
             document.body.classList.toggle('mode-discover', normalized === 'discover');
             document.body.classList.toggle('mode-list', normalized === 'list');
+            document.body.classList.toggle('mode-shuffle', normalized === 'shuffle');
 
             viewToggleButtons.forEach(btn => {
                 const isActive = btn.dataset.view === normalized;
@@ -1550,6 +1792,10 @@
 
             if (discoverContainer) {
                 discoverContainer.setAttribute('aria-hidden', String(normalized !== 'discover'));
+            }
+
+            if (shuffleContainer) {
+                shuffleContainer.setAttribute('aria-hidden', String(normalized !== 'shuffle'));
             }
 
             if (normalized === 'discover') {
@@ -1567,6 +1813,9 @@
                 } else {
                     scheduleDiscoverFocus();
                 }
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else if (normalized === 'shuffle') {
+                displayShuffledPhoto();
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             } else {
                 collapseDiscoverCard();
