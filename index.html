@@ -590,6 +590,28 @@
             }
         }
 
+        @keyframes shuffleFadeOut {
+            from {
+                opacity: 1;
+                transform: scale(1);
+            }
+            to {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+        }
+
+        @keyframes shuffleFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(1.05);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
         .shuffle-photo {
             position: relative;
             overflow: hidden;
@@ -1757,16 +1779,25 @@
             const photo = getRandomPhoto();
             if (!photo) return;
 
-            shuffleImg.src = photo.src;
-            shuffleImg.alt = photo.alt;
-            shuffleMonth.textContent = photo.month || '——';
-            shuffleDescription.textContent = photo.description;
-            shufflePhoto.dataset.caption = photo.caption;
+            // Add fade-out animation
+            shuffleCard.style.animation = 'shuffleFadeOut 0.3s ease forwards';
+            
+            // Wait for fade-out to complete, then change content and fade-in
+            setTimeout(() => {
+                shuffleImg.src = photo.src;
+                shuffleImg.alt = photo.alt;
+                shuffleMonth.textContent = photo.month || '——';
+                shuffleDescription.textContent = photo.description;
+                shufflePhoto.dataset.caption = photo.caption;
 
-            // Trigger animation by removing and re-adding the card
-            shuffleCard.style.animation = 'none';
-            void shuffleCard.offsetHeight; // Force reflow
-            shuffleCard.style.animation = '';
+                // Trigger fade-in animation
+                shuffleCard.style.animation = 'shuffleFadeIn 0.4s ease forwards';
+                
+                // Clear animation after completion so it doesn't interfere
+                setTimeout(() => {
+                    shuffleCard.style.animation = '';
+                }, 400);
+            }, 300);
         }
 
         if (shuffleButton) {
