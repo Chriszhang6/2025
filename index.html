@@ -1764,9 +1764,8 @@
 
             // Trigger animation by removing and re-adding the card
             shuffleCard.style.animation = 'none';
-            setTimeout(() => {
-                shuffleCard.style.animation = '';
-            }, 10);
+            void shuffleCard.offsetHeight; // Force reflow
+            shuffleCard.style.animation = '';
         }
 
         if (shuffleButton) {
