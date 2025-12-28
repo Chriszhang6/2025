@@ -1779,29 +1779,24 @@
             const photo = getRandomPhoto();
             if (!photo) return;
 
-            // Animation duration constants (in milliseconds)
-            const FADE_OUT_DURATION = 300;
-            const FADE_IN_DURATION = 400;
+            const nextImg = new Image();
+            nextImg.src = photo.src;
 
-            // Add fade-out animation
-            shuffleCard.style.animation = `shuffleFadeOut ${FADE_OUT_DURATION}ms ease forwards`;
-            
-            // Wait for fade-out to complete, then change content and fade-in
-            setTimeout(() => {
+            const swapContent = () => {
                 shuffleImg.src = photo.src;
                 shuffleImg.alt = photo.alt;
                 shuffleMonth.textContent = photo.month || '——';
                 shuffleDescription.textContent = photo.description;
                 shufflePhoto.dataset.caption = photo.caption;
+                shuffleCard.style.animation = '';
+            };
 
-                // Trigger fade-in animation
-                shuffleCard.style.animation = `shuffleFadeIn ${FADE_IN_DURATION}ms ease forwards`;
-                
-                // Clear animation after completion so it doesn't interfere
-                setTimeout(() => {
-                    shuffleCard.style.animation = '';
-                }, FADE_IN_DURATION);
-            }, FADE_OUT_DURATION);
+            if (nextImg.complete) {
+                swapContent();
+            } else {
+                nextImg.onload = swapContent;
+                nextImg.onerror = swapContent;
+            }
         }
 
         if (shuffleButton) {
